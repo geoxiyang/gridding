@@ -217,7 +217,7 @@ function favg_all!(arr,std_arr, weight_arr, compSTD, lat,lon,inp,s,s2,n, latMin,
         #println(i, " ", dimLat[i], " ", dimLon[i])
         # Take it easy if all corners already fall into one grid box:
         if (dimLat[i]==0) & (dimLon[i]==0)
-            
+
             weight_arr[iLon[i,1],iLat[i,1]] += 1
             for z in 1:s2
                 mean_old = arr[iLon[i,1],iLat[i,1],z];
@@ -232,7 +232,7 @@ function favg_all!(arr,std_arr, weight_arr, compSTD, lat,lon,inp,s,s2,n, latMin,
 
             ix[:] = floor.(Int32,points[:,:,1][:])
             iy[:] = floor.(Int32,points[:,:,2][:])
-            
+
             @inbounds for j in eachindex(ix)
                 weight_arr[iy[j],ix[j]] += fac;
                 for z in 1:s2
@@ -329,8 +329,8 @@ function main()
     mat_data_variance = zeros(Float32,(length(lon),length(lat),length(dGrid)))
     mat_data_weights  = zeros(Float32,(length(lon),length(lat)))
 
-    # Still hard-coded here, can be changed:
-    nGrid = 10;
+    # Still hard-coded here, can be changed: [XY note] if you need to oversample to 500m, you can check nGrid to 20. The default is 10
+    nGrid = 20;
 
     points = zeros(Float32,(nGrid,nGrid,2))
     #global indices = zeros(Int32,(nGrid,nGrid,2))
@@ -359,14 +359,14 @@ function main()
         # Loop through all files
         for a in files[fileSize.>0]
 
-            
+
             fin = Dataset(a)
             #println("Read, ", a)
-            
+
             # Read lat/lon bounds (required, maybe can change this to simple gridding in the future with just center):
             lat_in_ = getNC_var(fin, d2["lat_bnd"],true)
             lon_in_ = getNC_var(fin, d2["lon_bnd"],true)
-            
+
             #println("Read")
             dim = size(lat_in_)
 
@@ -384,7 +384,7 @@ function main()
 
             # Get indices within the lat/lon bounding box and check filter criteria (the last one filters out data crossing the date boundary):
             bool_add = (minLat[:,1].>latMin) .+ (maxLat[:,1].<latMax) .+ (minLon[:,1].>lonMin) .+ (maxLon[:,1].<lonMax) .+ ((maxLon[:,1].-minLon[:,1]).<50)
-            
+
             bCounter = 5
             # Look for equalities
             for (key, value) in f_eq
@@ -413,7 +413,7 @@ function main()
                 dim = size(mat_in)
                 # Read in all entries defined in JSON file:
                 co = 1
-                
+
                 # Do this onlye once:
                 if fillAttrib
                     for (key, value) in dGrid
